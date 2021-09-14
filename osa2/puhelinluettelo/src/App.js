@@ -4,6 +4,7 @@ import PersonForm from "./PersonForm";
 import PersonTable from "./PersonTable";
 import personService from "./services/person";
 import "./index.css";
+import person from "./services/person";
 
 const Notification = ({ message }) => {
   if (message === null) return null;
@@ -37,15 +38,7 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // inputs not empty
-    if (!newName || !newNumber) {
-      setNewName("");
-      setNewNumber("");
-
-      return;
-    }
-
-    // check for duplicates
+    // check if person is already in PhoneBook
     const personWithSameName = persons.find(
       (person) => person.name.toLowerCase() === newName.toLowerCase()
     );
@@ -61,8 +54,6 @@ const App = () => {
             number: newNumber,
           })
           .then((res) => {
-            console.log(persons);
-
             setPersons([
               ...persons.filter((person) => person.name !== newName),
               res.data,
@@ -70,18 +61,24 @@ const App = () => {
             setNotification(`Person ${res.data.name} added to phonebook`);
             setTimeout(() => setNotification(null), 5000);
           })
-          .catch(() => {
+          .catch((err) => {
+            console.error(err);
             setError(`Person ${newName} already removed from server`);
             setTimeout(() => setNotification(null), 5000);
           });
-        return;
       }
+    } else {
+      personService
+        .create({ name: newName, number: newNumber })
+        .then((res) => {
+          setPersons([...persons, res.data]);
+          setNotification(`Person ${res.data.name} added to phonebook`);
+          setTimeout(() => setNotification(null), 5000);
+        })
+        .catch((err) => console.error(err));
     }
-    personService.create({ name: newName, number: newNumber }).then((res) => {
-      setPersons([...persons, res.data]);
-      setNotification(`Person ${res.data.name} added to phonebook`);
-      setTimeout(() => setNotification(null), 5000);
-    });
+
+    // empty form
     setNewName("");
     setNewNumber("");
   };
@@ -89,11 +86,12 @@ const App = () => {
   const handleDelete = (e) => {
     personService
       .deletePerson(e.target.id)
-      .then(() => {})
+      .then(() => {
+        setPersons(persons.filter((person) => person.id !== e.target.id));
+        setNotification(`Person ${e.target.name} removed from phonebook`);
+        setTimeout(() => setNotification(null), 5000);
+      })
       .catch((err) => console.error(err));
-    setPersons(persons.filter((person) => person.id !== Number(e.target.id)));
-    setNotification(`Person ${e.target.name} removed from phonebook`);
-    setTimeout(() => setNotification(null), 5000);
   };
 
   // UseEffect
