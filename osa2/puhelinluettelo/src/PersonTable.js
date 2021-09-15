@@ -2,9 +2,6 @@ import React from "react";
 import Person from "./Person";
 
 const PersonTable = ({ persons, filter, deleteHandler }) => {
-  //const { persons, filter } = this.props;
-  console.log(filter);
-
   return (
     <table>
       <tbody>
