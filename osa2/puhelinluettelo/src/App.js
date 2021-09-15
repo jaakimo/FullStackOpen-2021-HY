@@ -4,7 +4,6 @@ import PersonForm from "./PersonForm";
 import PersonTable from "./PersonTable";
 import personService from "./services/person";
 import "./index.css";
-import person from "./services/person";
 
 const Notification = ({ message }) => {
   if (message === null) return null;
