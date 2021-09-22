@@ -7,7 +7,9 @@ const logger = require('../utils/logger');
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => logger.info('Connected to DB')).catch((err) => logger.error(err));
 
 const blogSchema = mongoose.Schema({
-  title: String,
+  title: {
+    type: String, required: true,
+  },
   url: String,
   author: String,
   likes: Number,
