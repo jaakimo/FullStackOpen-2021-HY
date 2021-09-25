@@ -13,5 +13,6 @@ module.exports = {
     semi: 0,
     'no-underscore-dangle': 'off',
     'no-param-reassign': 'off',
+    'comma-dangle': 'off',
   },
 }

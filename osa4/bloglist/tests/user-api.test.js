@@ -1,5 +1,4 @@
-// const jest = require('jest');
-// const mongoose = require('mongoose')
+const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./user_helper')
@@ -151,4 +150,8 @@ describe('when user is deleted', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
   })
+})
+
+afterAll(() => {
+  mongoose.connection.close()
 })

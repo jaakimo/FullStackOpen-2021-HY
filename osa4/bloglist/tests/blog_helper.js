@@ -1,11 +1,15 @@
-/* eslint-disable no-restricted-syntax */
-// eslint-disable-next-line import/no-extraneous-dependencies
+/* eslint-disable import/no-extraneous-dependencies */
+
 const supertest = require('supertest')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const app = require('../app')
 
 const api = supertest(app)
+let userCreated = false
+let token
+let token2
+let userId
 
 const initialBlogs = [
   {
@@ -29,32 +33,50 @@ const initialBlogs = [
 ]
 
 const setupTestUser = async () => {
-  await User.deleteMany({})
-  await api.post('/api/users').send({
-    username: 'testUser',
-    name: 'user',
-    password: 'test',
-  })
-}
+  if (!userCreated) {
+    await User.deleteMany({})
+    await api
+      .post('/api/users')
+      .send({
+        username: 'testUser',
+        name: 'user',
+        password: 'test',
+      })
+      .expect(201)
 
-const loginTestUser = async () => {
-  const r = await api
-    .post('/api/login')
-    .send({ username: 'testUser', password: 'test' })
-    .expect(200)
+    userCreated = true
+    const testUser = await api
+      .post('/api/login')
+      .send({ username: 'testUser', password: 'test' })
+      .expect(200)
 
-  const { token } = r.body
-  const userId = r.body.id
-  return [token, userId]
+    token = testUser.body.token
+    userId = testUser.body.id
+
+    await api
+      .post('/api/users')
+      .send({
+        username: 'testUser2',
+        name: 'user',
+        password: 'test',
+      })
+      .expect(201)
+
+    userCreated = true
+    const testUser2 = await api
+      .post('/api/login')
+      .send({ username: 'testUser2', password: 'test' })
+      .expect(200)
+
+    token2 = testUser2.body.token
+  }
 }
 
 const initializeBlogs = async () => {
-  const tokenAndId = await loginTestUser()
-  for (const blog of initialBlogs) {
-    const newBlog = new Blog({ ...blog, user: tokenAndId[1] })
-    // eslint-disable-next-line no-await-in-loop
-    await newBlog.save()
-  }
+  const blogObjects = initialBlogs.map(
+    (blog) => new Blog({ ...blog, user: userId })
+  )
+  await Blog.insertMany(blogObjects)
 }
 
 const nonExistingId = async () => {
@@ -75,11 +97,15 @@ const blogsInDb = async () => {
   return response.map((blog) => blog.toJSON())
 }
 
+const getToken = () => token
+const getToken2 = () => token2
+
 module.exports = {
   initialBlogs,
   nonExistingId,
   blogsInDb,
   initializeBlogs,
   setupTestUser,
-  loginTestUser,
+  getToken,
+  getToken2,
 }

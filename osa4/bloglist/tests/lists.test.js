@@ -1,4 +1,4 @@
-const listHelper = require('../utils/list_helper');
+const listHelper = require('../utils/list_helper')
 
 const blogs = [
   {
@@ -49,15 +49,15 @@ const blogs = [
     likes: 2,
     __v: 0,
   },
-];
+]
 
 test('dummy returns one', () => {
-  const emptyList = [];
+  const emptyList = []
 
-  const result = listHelper.dummy(emptyList);
+  const result = listHelper.dummy(emptyList)
 
-  expect(result).toBe(1);
-});
+  expect(result).toBe(1)
+})
 
 describe('likes', () => {
   const listWithOneBlog = [
@@ -69,7 +69,7 @@ describe('likes', () => {
       likes: 5,
       __v: 0,
     },
-  ];
+  ]
 
   const listWithTwoBlogs = [
     {
@@ -79,7 +79,8 @@ describe('likes', () => {
       url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
       likes: 15,
       __v: 0,
-    }, {
+    },
+    {
       _id: '5a422aa71b54a676234d17f8',
       title: 'Go To Statement Considered Harmful',
       author: 'Edsger W. Dijkstra',
@@ -87,38 +88,38 @@ describe('likes', () => {
       likes: 1,
       __v: 0,
     },
-  ];
+  ]
 
   test('when list has only one blog equals the likes of that', () => {
-    const result = listHelper.totalLikes(listWithOneBlog);
-    expect(result).toBe(5);
-  });
+    const result = listHelper.totalLikes(listWithOneBlog)
+    expect(result).toBe(5)
+  })
 
   test('should be total of 16 likes', () => {
-    const result = listHelper.totalLikes(listWithTwoBlogs);
-    expect(result).toBe(16);
-  });
+    const result = listHelper.totalLikes(listWithTwoBlogs)
+    expect(result).toBe(16)
+  })
 
-  test('should be blog with most likes', () => {
-    const result = listHelper.favoriteBlog(blogs);
+  test('favoriteBlog() should return a blog with most likes', () => {
+    const result = listHelper.favoriteBlog(blogs)
     expect(result).toEqual({
-      _id: '5a422b3a1b54a676234d17f9',
+      id: '5a422b3a1b54a676234d17f9',
       title: 'Canonical string reduction',
       author: 'Edsger W. Dijkstra',
       url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
       likes: 12,
       __v: 0,
-    });
-  });
+    })
+  })
   test('should be most liked author', () => {
-    const result = listHelper.mostLikes(blogs);
-    expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 });
-  });
-});
+    const result = listHelper.mostLikes(blogs)
+    expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 })
+  })
+})
 
 describe('blog counts', () => {
   test('should be author with most blogs', () => {
-    const result = listHelper.mostBlogs(blogs);
-    expect(result).toEqual({ author: 'Robert C. Martin', blogs: 3 });
-  });
-});
+    const result = listHelper.mostBlogs(blogs)
+    expect(result).toEqual({ author: 'Robert C. Martin', blogs: 3 })
+  })
+})
