@@ -1,16 +1,17 @@
 import React from 'react'
 import Blog from './Blog'
 
-const BlogList = ({ blogs, likeBlog, deleteBlog, user }) => {
+const BlogList = ({ blogs, likeBlog, deleteBlog, userId }) => {
+
   return (
-    <div>
+    <div className='bloglist'>
       {blogs.map((blog) => (
         <Blog
           key={blog.id}
           likeBlog={likeBlog}
           blog={blog}
           deleteBlog={deleteBlog}
-          user={user}
+          userId={userId}
         />
       ))}
     </div>

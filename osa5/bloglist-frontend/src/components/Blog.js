@@ -1,28 +1,30 @@
 import React from 'react'
 import Togglable from './Togglable'
 
-const Blog = ({ blog, deleteBlog, likeBlog, user }) => {
+const Blog = ({ blog, deleteBlog, likeBlog, userId }) => {
   const blogStyle = {
     padding: '10px 0 0 2px',
     border: '1px solid',
     marginBottom: '5',
   }
-
   const addLike = () => {
     likeBlog(blog)
   }
   return (
-    <div style={blogStyle}>
-      {blog.title} - {blog.author}
+    <div className="blog" style={blogStyle}>
+      <h4>
+        {blog.title} - {blog.author}
+      </h4>
       <Togglable buttonLabel="View">
         <div>
           <div>{blog.title}</div>
           <div>{blog.author}</div>
           <div>{blog.url}</div>
           <div>
-            {blog.likes} <button onClick={addLike}>like</button>
+            <div className='blog-likes'>{blog.likes}</div>
+            <button className='button-like' onClick={addLike}>like</button>
           </div>
-          {user.id === blog.user.id ? (
+          {userId === blog.user.id ? (
             <button
               id={blog.id}
               blogtitle={blog.title}

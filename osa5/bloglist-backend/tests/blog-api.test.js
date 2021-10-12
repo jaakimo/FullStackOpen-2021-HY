@@ -17,12 +17,16 @@ describe('when there is initially some blogs saved', () => {
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
+      .set('Authorization', `bearer ${helper.getToken()}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
 
   test('all blogs are returned', async () => {
-    const response = await api.get('/api/blogs')
+    const response = await api
+      .get('/api/blogs')
+      .set('Authorization', `bearer ${helper.getToken()}`)
+
     expect(response.body).toHaveLength(helper.initialBlogs.length)
   })
 
@@ -43,17 +47,24 @@ describe('viewing a specific blog', () => {
     const blogToView = blogsAtStart[0]
     await api
       .get(`/api/blogs/${blogToView.id}`)
+      .set('Authorization', `bearer ${helper.getToken()}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
   test('fails with code 404 if user does not exist', async () => {
     const validNonexistingId = await helper.nonExistingId()
-    await api.get(`/api/blogs/${validNonexistingId}`).expect(404)
+    await api
+      .get(`/api/blogs/${validNonexistingId}`)
+      .set('Authorization', `bearer ${helper.getToken()}`)
+      .expect(404)
   })
 
   test('fails with code 400 if malformed id', async () => {
     const malformattedId = '1010010'
-    await api.get(`/api/blogs/${malformattedId}`).expect(400)
+    await api
+      .get(`/api/blogs/${malformattedId}`)
+      .set('Authorization', `bearer ${helper.getToken()}`)
+      .expect(400)
   })
 })
 
@@ -132,13 +143,13 @@ describe('blog creation, deletion, updating', () => {
         .expect(403)
     })
   })
-
   describe('updating a blog', () => {
     test('with valid id, should update with status 200', async () => {
       const blogsAtStart = await helper.blogsInDb()
       const blogToUpdate = blogsAtStart[0]
       await api
         .put(`/api/blogs/${blogToUpdate.id}`)
+        .set('Authorization', `bearer ${helper.getToken()}`)
         .send({ likes: blogToUpdate.likes + 1 })
         .expect(200)
         .expect('Content-Type', /application\/json/)

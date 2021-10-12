@@ -31,21 +31,35 @@ const SignupForm = ({ signup }) => {
       <form onSubmit={handleSignup}>
         <div>
           username:{' '}
-          <input type="text" value={username} onChange={handleUsernameChange} />
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={handleUsernameChange}
+          />
         </div>
         <div>
-          name: <input type="text" value={name} onChange={handleNameChange} />
+          name:{' '}
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={handleNameChange}
+          />
         </div>
         <div>
           password:{' '}
           <input
             type="text"
+            id="password"
             value={password}
             onChange={handlePasswordChange}
           ></input>
         </div>
 
-        <button type="submit">login</button>
+        <button type="submit" id="signup-button">
+          signup
+        </button>
       </form>
     </div>
   )

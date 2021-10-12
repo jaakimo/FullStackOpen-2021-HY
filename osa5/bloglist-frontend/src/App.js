@@ -17,21 +17,49 @@ const App = () => {
   const [notification, setNotification] = useState(null)
 
   const blogFormRef = useRef()
+  const signupFormRef = useRef()
+  useEffect(() => {
+    if(user) blogService.setToken(user.token)
+  }, [user])
 
   useEffect(async () => {
-    const userInStorage = JSON.parse(
-      window.localStorage.getItem('loggedBloglistUser')
-    )
-    if (userInStorage) setUser(userInStorage)
-    blogService
-      .getAll()
-      .then((blogs) => setBlogs(blogs.sort((a, b) => a.likes < b.likes)))
+    const userInStorage = JSON.parse(window.localStorage.getItem('loggedUser'))
+    if (userInStorage) {
+      setUser(userInStorage)
+      blogService.setToken(userInStorage.token)
+      try {
+        const response = await blogService.getAll()
+        setBlogs(response.sort((a, b) => b.likes - a.likes))
+      }
+      catch (error) {
+        window.localStorage.removeItem('loggedUser')
+        setError(error.response.data.error)
+        setTimeout(() => {
+          setError(null)
+          setUser(null)
+        }, 5000)
+      }
+
+    }
   }, [])
+
+
+
+  const loginUser = async (credentials) => {
+    try {
+      const user = await loginService.login(credentials)
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
+      setUser(user)
+    } catch (error) {
+      setError(error.response.data.error)
+      setTimeout(() => setError(null), 5000)
+    }
+  }
+
 
   const createBlog = async (blogObject) => {
     blogFormRef.current.toggleVisibility()
     try {
-      console.log('blogObject', blogObject)
       const response = await blogService.create({ blogObject, user })
       setBlogs([...blogs, response].sort((a, b) => a.likes < b.likes))
       setNotification(
@@ -44,29 +72,20 @@ const App = () => {
     }
   }
 
-  const loginUser = async (credentials) => {
+
+  const signup = async (userObject) => {
+    signupFormRef.current.toggleVisibility()
     try {
-      const user = await loginService.login(credentials)
-      setUser(user)
-      window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user))
+      const { username } = await userService.signup(userObject)
+      setNotification(`User ${username} signed up`)
+      setTimeout(() => setNotification(null), 5000)
+
     } catch (error) {
       setError(error.response.data.error)
       setTimeout(() => setError(null), 5000)
     }
   }
 
-  const signup = async (userObject) => {
-    try {
-      const user = await userService.signup(userObject)
-      if (user) {
-        setUser(user)
-        window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user))
-      }
-    } catch (error) {
-      setError(error.response.data.error)
-      setTimeout(() => setError(null), 5000)
-    }
-  }
 
   const likeBlog = async (blogObject) => {
     const { id, likes } = blogObject
@@ -78,30 +97,32 @@ const App = () => {
       const updatedBlogs = blogs.map((blog) =>
         blog.id === id ? { ...blog, likes: blog.likes + 1 } : blog
       )
-      setBlogs(updatedBlogs.sort((a, b) => a.likes < b.likes))
+      setBlogs(updatedBlogs.sort((a, b) => b.likes - a.likes))
     } catch (error) {
       setError(error.response.data.error)
       setTimeout(() => setError(null), 5000)
     }
   }
+
+
   const handleLogout = () => {
-    window.localStorage.removeItem('loggedBloglistUser')
+    window.localStorage.removeItem('loggedUser')
     setUser(null)
     setNotification('User logged out')
     setTimeout(() => setNotification(null), 5000)
   }
 
+
   const deleteBlog = async (e) => {
     try {
-      if (
-        window.confirm(
-          `remove blog ${e.target.attributes.blogTitle.value} by ${e.target.attributes.blogAuthor.value}?`
-        )
-      ) {
+      if (window.confirm(
+        `remove blog ${e.target.attributes.blogTitle.value} by ${e.target.attributes.blogAuthor.value}?`
+      )) {
         await blogService.remove({ id: e.target.id, user })
         setBlogs(blogs.filter((blog) => blog.id !== e.target.id))
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.log('error', error)
       setError(error.response.data.error)
       setTimeout(() => setError(null), 5000)
@@ -129,7 +150,7 @@ const App = () => {
               blogs={blogs}
               likeBlog={likeBlog}
               deleteBlog={deleteBlog}
-              user={user}
+              userId={user.id}
             />
           </div>
         ) : (
@@ -138,7 +159,7 @@ const App = () => {
               <LoginForm loginUser={loginUser} />
             </Togglable>
 
-            <Togglable buttonLabel="signup" ref={blogFormRef}>
+            <Togglable buttonLabel="signup" ref={signupFormRef}>
               <SignupForm signup={signup} />
             </Togglable>
           </div>

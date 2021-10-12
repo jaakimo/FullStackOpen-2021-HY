@@ -7,6 +7,10 @@
 
 # testing
 /coverage
+**/videos/*
+**/screenshots/*
+**/fixtures/*
+
 
 # production
 /build
